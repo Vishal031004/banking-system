@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Banking Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-animation"></div>
+    
+    <main class="container glass-panel" id="app-container">
+        <!-- View 1: Auth / Register -->
+        <div id="auth-view" class="view active">
+            <header>
+                <h1>Welcome to <span>OOAD Bank</span></h1>
+                <p>Register to open your digital portfolio.</p>
+            </header>
+            <div class="auth-box">
+                <input type="text" id="regName" placeholder="Full Name" value="John Doe">
+                <input type="email" id="regEmail" placeholder="Email Address" value="john@email.com">
+                <input type="number" id="regIncome" placeholder="Declared Income" value="75000">
+                <button class="btn-gradient" onclick="registerUser()">Open Portfolio ➔</button>
+            </div>
+            <p id="authMsg" class="msg-box"></p>
+        </div>
+
+        <!-- View 2: Main Dashboard -->
+        <div id="dashboard-view" class="view">
+            <header class="dash-header">
+                <div>
+                    <h1 style="font-size: 1.8rem">Welcome, <span id="dashName">User</span>!</h1>
+                    <p>Credit Score: <span id="dashScore" class="accent-text">---</span></p>
+                </div>
+                <div class="net-worth">
+                    <p>Total Balance</p>
+                    <h2 id="dashTotalBalance">$0.00</h2>
+                </div>
+            </header>
+
+            <div class="grid">
+                <!-- Action: Create Account -->
+                <section class="card">
+                    <h2>Open New Account</h2>
+                    <p>Instantiates an object securely via Factory.</p>
+                    <div class="controls">
+                        <select id="newAccType">
+                            <option value="SAVINGS">Savings Account</option>
+                            <option value="CURRENT">Current Account</option>
+                            <option value="CORPORATE">Corporate Account</option>
+                        </select>
+                        <input type="number" id="newAccInitDep" placeholder="Initial Deposit" value="1000">
+                        <button class="btn-accent" onclick="openAccount()">Create Account</button>
+                    </div>
+                </section>
+
+                <!-- Action: Transfer Funds -->
+                <section class="card">
+                    <h2>Transfer Funds</h2>
+                    <p>Moves real money and triggers Fraud Observers.</p>
+                    <div class="controls">
+                        <select id="transferFrom" placeholder="From Account">
+                        </select>
+                        <select id="transferTo">
+                            <option value="">Select Destination Account</option>
+                        </select>
+                        <input type="number" id="transferAmt" placeholder="Amount" value="50">
+                        <button class="btn-gradient" onclick="transferFunds()">Execute Transfer</button>
+                    </div>
+                    <p id="transferMsg" class="msg-box"></p>
+                </section>
+            </div>
+
+            <!-- List of Owned Accounts -->
+            <div class="accounts-list">
+                <h3>Your Active Accounts</h3>
+                <div id="accountsContainer" class="acc-grid">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <div style="text-align:center; margin-top: 20px;">
+                <button class="btn-outline" onclick="logout()">Sign Out</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
