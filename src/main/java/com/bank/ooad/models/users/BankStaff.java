@@ -10,7 +10,7 @@ public class BankStaff extends User {
     private String staffId;
 
     @Enumerated(EnumType.STRING)
-    private StaffRole role;
+    private StaffRole staffRole;
 
     public void reviewLoanApplication() {
         System.out.println("Staff reviewing loan application");
@@ -31,6 +31,6 @@ public class BankStaff extends User {
     // Getters & Setters
     public String getStaffId() { return staffId; }
     public void setStaffId(String staffId) { this.staffId = staffId; }
-    public StaffRole getRole() { return role; }
-    public void setRole(StaffRole role) { this.role = role; }
+    public StaffRole getStaffRole() { return staffRole; }
+    public void setStaffRole(StaffRole staffRole) { this.staffRole = staffRole; }
 }

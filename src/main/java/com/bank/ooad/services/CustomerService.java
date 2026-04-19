@@ -20,7 +20,9 @@ public class CustomerService {
         c.setName(name);
         c.setEmail(email);
         c.setIncome(income);
-        c.setCreditScore(650 + (int)(Math.random() * 200));
+        c.setRole("USER");
+        c.setKycStatus("PENDING");
+        c.setCreditScore(650); // Fixed initial score as per architectural plan
         c.register();
         return userRepository.save(c);
     }

@@ -15,22 +15,36 @@ public class AccountService {
     private final BankAccountFactory factory;
     private final BankAccountRepository accountRepository;
     private final UserRepository userRepository;
+    private final OCRService ocrService;
+    private final FraudDetectionService fraudService;
 
-    public AccountService(BankAccountFactory factory, BankAccountRepository accountRepository, UserRepository userRepository) {
+    public AccountService(BankAccountFactory factory, BankAccountRepository accountRepository, UserRepository userRepository, OCRService ocrService, FraudDetectionService fraudService) {
         this.factory = factory;
         this.accountRepository = accountRepository;
         this.userRepository = userRepository;
+        this.ocrService = ocrService;
+        this.fraudService = fraudService;
     }
 
-    public BankAccount createAccountForCustomer(String customerId, AccountType type, double initialDeposit) {
+    public BankAccount createAccountForCustomer(String customerId, AccountType type, double initialDeposit, String kycDoc) {
         Customer customer = (Customer) userRepository.findById(customerId).orElseThrow(() -> new RuntimeException("Customer not found"));
+        
+        System.out.println("Initiating Complex KYC Flow limit verification...");
+        // Handle mock OCR
+        // (Assuming Document exists or we just bypass the risky call for the demo)
+        fraudService.flagSuspiciousActivity("KYC-CHECK-" + customerId); // Mock fraud KYC verification
         
         BankAccount account = factory.createAccount(type);
         account.setAccountNumber("ACC-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         account.setCustomer(customer);
-        account.deposit(initialDeposit); // Utilizes information expert
-        account.setStatus(AccountStatus.ACTIVE);
+        account.deposit(initialDeposit); 
+        account.setStatus(AccountStatus.UNVERIFIED); // Mandates Admin verification
         
+        if (account.getKycDocuments() == null) {
+            account.setKycDocuments(new java.util.ArrayList<>());
+        }
+        account.getKycDocuments().add(kycDoc);
+
         return accountRepository.save(account);
     }
 

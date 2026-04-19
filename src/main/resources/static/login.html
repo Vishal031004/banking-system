@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Banking - Portal Entry</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .split { display: flex; align-items: start; gap: 20px; flex-direction:column; }
+        .split span { color: #999; font-size:0.8rem; text-transform:uppercase; margin-top:20px;}
+    </style>
+</head>
+<body>
+    <div id="auth-container" class="active-container">
+        <div class="auth-box">
+            <h2>Portal Entry</h2>
+            <p>Authentication & KYC Identity Verification</p>
+            <div class="split">
+                <input type="text" id="regName" placeholder="Full Name (KYC Match)" value="John Doe">
+                <input type="email" id="regEmail" placeholder="Email Address" value="john@finance.com">
+                <input type="number" id="regIncome" placeholder="Declared Income" value="75000">
+                <button onclick="registerUser()" style="width:100%;" class="submit-btn">Identify & Register</button>
+                
+                <span>-- OR EXISTING --</span>
+                
+                <input type="email" id="loginEmail" placeholder="Registered Email" value="john@finance.com">
+                <button onclick="loginUser()" style="width:100%; background:#4a6c6f;" class="submit-btn">Sign In</button>
+            </div>
+            <p id="authMsg" class="msg-box" style="margin-top:10px;"></p>
+        </div>
+    </div>
+    <script>
+        async function registerUser() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const income = document.getElementById('regIncome').value;
+            try {
+                const res = await fetch(`/api/app/users/register?name=${name}&email=${email}&income=${income}`, { method: 'POST' });
+                const user = await res.json();
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                window.location.href = user.role === 'ADMIN' ? 'admin.html' : 'dashboard.html';
+            } catch (e) { alert("Registration failed"); }
+        }
+        async function loginUser() {
+            const email = document.getElementById('loginEmail').value;
+            try {
+                const res = await fetch(`/api/app/users/login?email=${email}`, { method: 'POST' });
+                if(!res.ok) throw new Error("Invalid User");
+                const user = await res.json();
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                window.location.href = user.role === 'ADMIN' ? 'admin.html' : 'dashboard.html';
+            } catch (e) { alert("Login failed"); }
+        }
+    </script>
+</body>
+</html>

@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
+import com.bank.ooad.patterns.observer.LoanStatusEvent;
+
 @Service
 public class NotificationService {
     @Autowired @Qualifier("emailGateway") private INotificationGateway emailGateway;
@@ -19,6 +21,12 @@ public class NotificationService {
     public void handleTransactionCompleted(TransactionCompletedEvent event) {
         System.out.println("NotificationService observed transaction completion: " + event.getTransaction().getTransactionId());
         receiveDispatchRequest("Tx " + event.getTransaction().getTransactionId() + " completed");
+    }
+
+    @EventListener
+    public void handleLoanStatus(LoanStatusEvent event) {
+        System.out.println("NotificationService observed loan change: " + event.getLoanApplication().getApplicationId());
+        receiveDispatchRequest(event.getMessage());
     }
 
     public void receiveDispatchRequest(String eventMsg) {

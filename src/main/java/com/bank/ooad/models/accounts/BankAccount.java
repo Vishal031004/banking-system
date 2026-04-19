@@ -79,4 +79,6 @@ public abstract class BankAccount {
     public void setAccountType(AccountType accountType) { this.accountType = accountType; }
     public AccountStatus getStatus() { return status; }
     public void setStatus(AccountStatus status) { this.status = status; }
+    public java.util.List<String> getKycDocuments() { return kycDocuments; }
+    public void setKycDocuments(java.util.List<String> kycDocuments) { this.kycDocuments = kycDocuments; }
 }

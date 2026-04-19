@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .sidebar { background-color: #2b1f1f; }
+        .sidebar-hover { background-color: #3b2f2f; }
+    </style>
+</head>
+<body>
+    <div id="app-wrapper" class="active-container">
+        <nav class="sidebar">
+            <div class="brand">
+                <span class="logo" style="background:#5c3535">MG</span>
+                <span>Manager Hub</span>
+            </div>
+            <ul class="nav-links">
+                <li class="active" onclick="navigateTo('kyc-page', this)">KYC Verifications</li>
+                <li onclick="navigateTo('loans-page', this)">Loan Exceptions</li>
+            </ul>
+            <div class="sidebar-footer">
+                <span id="sidebar-email"></span>
+                <span class="logout-link" onclick="logout()">Terminate Session</span>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <header class="top-nav">
+                <div></div> 
+                <div class="notification-area">
+                    <button class="notif-btn" onclick="toggleNotifications()">
+                        🔔 Action Logs <span id="notif-badge" class="badge">0</span>
+                    </button>
+                    <div id="notif-dropdown" class="dropdown-panel hidden">
+                        <div id="notif-list"></div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <section id="kyc-page" class="page active">
+                    <h1 class="page-title">Pending KYC Accounts</h1>
+                    <p class="page-subtitle">Verify user identity from OCR data to unfreeze new accounts.</p>
+                    
+    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>CUSTOMER ID</th>
+                                    <th>ACCOUNT ID</th>
+                                    <th>TYPE</th>
+                                    <th>KYC DOCUMENT</th>
+                                    <th>ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody id="kycTableBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="loans-page" class="page">
+                    <h1 class="page-title">Underwriting Review</h1>
+                    <p class="page-subtitle">Evaluate unapproved loan states.</p>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>LOAN ID</th>
+                                    <th>TYPE</th>
+                                    <th>AMOUNT</th>
+                                    <th>DECISION</th>
+                                </tr>
+                            </thead>
+                            <tbody id="loansTableBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <div id="toast-wrapper" class="toast-wrapper"></div>
+    <script src="admin.js"></script>
+</body>
+</html>

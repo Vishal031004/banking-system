@@ -15,6 +15,7 @@ public abstract class User {
     protected String email;
     protected String phone;
     protected String passwordHash;
+    protected String role;
     protected LocalDateTime createdAt;
 
     public void login() {
@@ -44,5 +45,7 @@ public abstract class User {
     public void setPhone(String phone) { this.phone = phone; }
     public String getPasswordHash() { return passwordHash; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 }

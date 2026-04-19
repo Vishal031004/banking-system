@@ -21,7 +21,14 @@ public class FraudDetectionService {
     }
 
     public RiskLevel analyzeTransaction(Transaction transaction) {
-        System.out.println("Analyzing transaction details explicitly");
+        System.out.println("Analyzing transaction anomalies");
+        double anomalyScore = Math.random(); 
+        
+        // Mock Anomaly engine (e.g. Device mismatch, fast geolocation ping)
+        if(transaction.getAmount() > 10000 || anomalyScore > 0.85) {
+            System.out.println("FRAUD ENGINE: High Risk Anomaly Detected. Blocking.");
+            throw new RuntimeException("Transaction Blocked by Risk Engine: OTP Required / Suspicious Activity");
+        }
         return RiskLevel.LOW;
     }
 
