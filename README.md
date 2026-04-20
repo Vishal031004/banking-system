@@ -33,7 +33,7 @@ There are two completely isolated user flows with distinct HTML interfaces.
 ### Manager Hub (The Admin View)
 - **URL:** `http://localhost:8080/admin.html`
 - **Testing Flow:**
-  1. The system has a built-in backdoor for easy presentations! If you navigate directly to this URL, it securely bypasses standard login and mocks an active Admin session (`admin@finance.com`).
+  1. The system has a built-in backdoor for easy presentations! If you navigate directly to this URL, it securely bypasses standard login and mocks an active Admin session (`admin@finance.com`) , password ('admin123').
   2. On the **KYC Verifications** page, you will see the exact PDF file uploaded by your test Customer. 
   3. Click **VERIFY KYC DATA** to unlock the account. 
   4. Switch to the **Loan Exceptions** tab to Approve or Reject any loans formally submitted by users.

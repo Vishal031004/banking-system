@@ -38,25 +38,37 @@ public class RealBankController {
     }
 
     @PostMapping("/users/register")
-    public Customer register(@RequestParam String name, @RequestParam String email, @RequestParam double income) {
-        return customerService.registerCustomer(name, email, income);
+    public Customer register(@RequestParam String name, @RequestParam String email, @RequestParam double income, @RequestParam String password) {
+        if (password == null || password.trim().length() < 6) {
+            throw new RuntimeException("Password must be at least 6 characters.");
+        }
+        return customerService.registerCustomer(name, email, income, password);
     }
 
     @PostMapping("/users/login")
-    public com.bank.ooad.models.users.User login(@RequestParam String email) {
+    public com.bank.ooad.models.users.User login(@RequestParam String email, @RequestParam String password) {
         if ("admin@finance.com".equalsIgnoreCase(email)) {
-             com.bank.ooad.models.users.BankStaff admin = new com.bank.ooad.models.users.BankStaff();
-             admin.setEmail("admin@finance.com");
-             admin.setName("System Administrator");
-             admin.setRole("ADMIN");
-             return admin;
+            // Hardcoded admin backdoor for demo — verify against fixed password
+            if (!"admin123".equals(password)) {
+                throw new RuntimeException("Invalid admin credentials.");
+            }
+            com.bank.ooad.models.users.BankStaff admin = new com.bank.ooad.models.users.BankStaff();
+            admin.setEmail("admin@finance.com");
+            admin.setName("System Administrator");
+            admin.setRole("ADMIN");
+            return admin;
         }
-        
-        // Mock authentication, fetch by matching email (simplified for demo)
-        return customerService.getAllCustomers().stream()
-                .filter(u -> u.getEmail().equals(email))
+
+        com.bank.ooad.models.users.User user = customerService.getAllCustomers().stream()
+                .filter(u -> u.getEmail().equalsIgnoreCase(email))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("No account found with that email."));
+
+        if (!customerService.verifyPassword(password, user.getPasswordHash())) {
+            throw new RuntimeException("Incorrect password.");
+        }
+
+        return user;
     }
 
     @GetMapping("/users/{id}/dashboard")

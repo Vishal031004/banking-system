@@ -7,51 +7,116 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        .split { display: flex; align-items: start; gap: 20px; flex-direction:column; }
-        .split span { color: #999; font-size:0.8rem; text-transform:uppercase; margin-top:20px;}
+        .split { display: flex; align-items: start; gap: 14px; flex-direction:column; }
+        .split span { color: #999; font-size:0.8rem; text-transform:uppercase; margin-top:10px; }
+        .error-msg { color: #dc2626; font-size: 0.85rem; min-height: 18px; margin: 0; }
+        .hint-msg  { color: #6b7280; font-size: 0.78rem; margin: 0; }
     </style>
 </head>
 <body>
     <div id="auth-container" class="active-container">
         <div class="auth-box">
             <h2>Portal Entry</h2>
-            <p>Authentication & KYC Identity Verification</p>
+            <p>Authentication &amp; KYC Identity Verification</p>
             <div class="split">
-                <input type="text" id="regName" placeholder="Full Name (KYC Match)" value="John Doe">
-                <input type="email" id="regEmail" placeholder="Email Address" value="john@finance.com">
-                <input type="number" id="regIncome" placeholder="Declared Income" value="75000">
-                <button onclick="registerUser()" style="width:100%;" class="submit-btn">Identify & Register</button>
-                
-                <span>-- OR EXISTING --</span>
-                
-                <input type="email" id="loginEmail" placeholder="Registered Email" value="john@finance.com">
-                <button onclick="loginUser()" style="width:100%; background:#4a6c6f;" class="submit-btn">Sign In</button>
+
+                <!-- REGISTER SECTION -->
+                <span>-- New Customer --</span>
+                <input type="text"     id="regName"     placeholder="Full Name (KYC Match)" value="John Doe">
+                <input type="email"    id="regEmail"    placeholder="Email Address" value="john@finance.com">
+                <input type="number"   id="regIncome"   placeholder="Declared Annual Income" value="75000">
+                <input type="password" id="regPassword" placeholder="Create Password (min 6 chars)">
+                <p class="error-msg" id="regError"></p>
+                <button id="registerBtn" onclick="registerUser()" style="width:100%;" class="submit-btn">Identify &amp; Register</button>
+
+                <!-- LOGIN SECTION -->
+                <span>-- Existing Customer --</span>
+                <input type="email"    id="loginEmail"    placeholder="Registered Email" value="john@finance.com">
+                <input type="password" id="loginPassword" placeholder="Password">
+                <p class="error-msg" id="loginError"></p>
+                <button id="loginBtn" onclick="loginUser()" style="width:100%; background:#4a6c6f;" class="submit-btn">Sign In</button>
+
             </div>
-            <p id="authMsg" class="msg-box" style="margin-top:10px;"></p>
         </div>
     </div>
     <script>
+        function setLoading(btnId, loading) {
+            const btn = document.getElementById(btnId);
+            btn.disabled = loading;
+            btn.style.opacity = loading ? '0.6' : '1';
+        }
+
         async function registerUser() {
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const income = document.getElementById('regIncome').value;
+            document.getElementById('regError').innerText = '';
+            const name     = document.getElementById('regName').value.trim();
+            const email    = document.getElementById('regEmail').value.trim();
+            const income   = document.getElementById('regIncome').value;
+            const password = document.getElementById('regPassword').value;
+
+            if (!name || !email || !income) {
+                document.getElementById('regError').innerText = 'Please fill in all fields.';
+                return;
+            }
+            if (password.length < 6) {
+                document.getElementById('regError').innerText = 'Password must be at least 6 characters.';
+                return;
+            }
+
+            setLoading('registerBtn', true);
             try {
-                const res = await fetch(`/api/app/users/register?name=${name}&email=${email}&income=${income}`, { method: 'POST' });
+                const res = await fetch(
+                    `/api/app/users/register?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&income=${income}&password=${encodeURIComponent(password)}`,
+                    { method: 'POST' }
+                );
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(text || 'Registration failed.');
+                }
                 const user = await res.json();
                 localStorage.setItem('currentUser', JSON.stringify(user));
                 window.location.href = user.role === 'ADMIN' ? 'admin.html' : 'dashboard.html';
-            } catch (e) { alert("Registration failed"); }
+            } catch (e) {
+                document.getElementById('regError').innerText = e.message;
+            } finally {
+                setLoading('registerBtn', false);
+            }
         }
+
         async function loginUser() {
-            const email = document.getElementById('loginEmail').value;
+            document.getElementById('loginError').innerText = '';
+            const email    = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                document.getElementById('loginError').innerText = 'Please enter your email and password.';
+                return;
+            }
+
+            setLoading('loginBtn', true);
             try {
-                const res = await fetch(`/api/app/users/login?email=${email}`, { method: 'POST' });
-                if(!res.ok) throw new Error("Invalid User");
+                const res = await fetch(
+                    `/api/app/users/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+                    { method: 'POST' }
+                );
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(text || 'Login failed.');
+                }
                 const user = await res.json();
                 localStorage.setItem('currentUser', JSON.stringify(user));
                 window.location.href = user.role === 'ADMIN' ? 'admin.html' : 'dashboard.html';
-            } catch (e) { alert("Login failed"); }
+            } catch (e) {
+                document.getElementById('loginError').innerText = e.message;
+            } finally {
+                setLoading('loginBtn', false);
+            }
         }
+
+        // Submit on Enter key in password fields
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('regPassword').addEventListener('keydown',   e => { if (e.key === 'Enter') registerUser(); });
+            document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') loginUser(); });
+        });
     </script>
 </body>
 </html>
