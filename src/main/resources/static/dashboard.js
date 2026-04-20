@@ -44,54 +44,59 @@ function toggleNotifications() {
 
 // Data Fetching
 async function refreshData() {
-    const dashRes = await fetch(`/api/app/users/${currentUser.userId}/dashboard`);
-    const dashData = await dashRes.json();
-    
-    document.getElementById('dashTotalBalance').innerText = `$${parseFloat(dashData.totalBalance).toFixed(2)}`;
-    
-    // Check Credit Score Dynamic Offers
-    const offersRes = await fetch(`/api/app/loans/offers/${currentUser.userId}`);
-    const offersData = await offersRes.json();
-    document.getElementById('dashScore').innerText = offersData.creditScore;
-    if(offersData.creditScore < 600) document.getElementById('dashRiskAlert').innerText = "High Risk Classification: Expect higher interest rates.";
-    else document.getElementById('dashRiskAlert').innerText = "";
-    
-    let htmlOffers = '';
-    offersData.offers.forEach(o => {
-        htmlOffers += `<div style="padding:10px; border-bottom:1px solid #d0e3e5;"><strong>${o.type}</strong> - Up to $${o.maxAmount} at ${o.rate}</div>`;
-    });
-    document.getElementById('preapprovedOffers').innerHTML = htmlOffers;
+    try {
+        const dashRes = await fetch(`/api/app/users/${currentUser.userId}/dashboard`);
+        if (!dashRes.ok) throw new Error('Session expired or server restarted. Please log in again.');
+        const dashData = await dashRes.json();
+        
+        document.getElementById('dashTotalBalance').innerText = `$${parseFloat(dashData.totalBalance).toFixed(2)}`;
+        
+        // Check Credit Score Dynamic Offers
+        const offersRes = await fetch(`/api/app/loans/offers/${currentUser.userId}`);
+        const offersData = await offersRes.json();
+        document.getElementById('dashScore').innerText = offersData.creditScore;
+        if(offersData.creditScore < 600) document.getElementById('dashRiskAlert').innerText = "High Risk Classification: Expect higher interest rates.";
+        else document.getElementById('dashRiskAlert').innerText = "";
+        
+        let htmlOffers = '';
+        offersData.offers.forEach(o => {
+            htmlOffers += `<div style="padding:10px; border-bottom:1px solid #d0e3e5;"><strong>${o.type}</strong> - Up to $${o.maxAmount} at ${o.rate}</div>`;
+        });
+        document.getElementById('preapprovedOffers').innerHTML = htmlOffers;
 
-    // Accounts
-    const accTable = document.getElementById('dashAccountsTable');
-    const tfFrom = document.getElementById('transferFrom');
-    accTable.innerHTML = '';
-    tfFrom.innerHTML = '';
-    
-    dashData.accounts.forEach(acc => {
-        accTable.innerHTML += `<tr><td>${acc.accountType}</td><td>${acc.accountNumber}</td><td>${acc.status}</td><td>$${acc.balance}</td></tr>`;
-        if(acc.status === 'ACTIVE') {
-            tfFrom.innerHTML += `<option value="${acc.accountNumber}">${acc.accountType} - $${acc.balance}</option>`;
-        }
-    });
+        // Accounts
+        const accTable = document.getElementById('dashAccountsTable');
+        const tfFrom = document.getElementById('transferFrom');
+        accTable.innerHTML = '';
+        tfFrom.innerHTML = '';
+        
+        dashData.accounts.forEach(acc => {
+            accTable.innerHTML += `<tr><td>${acc.accountType}</td><td>${acc.accountNumber}</td><td>${acc.status}</td><td>$${acc.balance}</td></tr>`;
+            if(acc.status === 'ACTIVE') {
+                tfFrom.innerHTML += `<option value="${acc.accountNumber}">${acc.accountType} - $${acc.balance}</option>`;
+            }
+        });
 
-    // Global Accounts for Transfer target
-    const allRes = await fetch(`/api/app/accounts/all`);
-    const allAccs = await allRes.json();
-    const tfTo = document.getElementById('transferTo');
-    tfTo.innerHTML = '';
-    allAccs.filter(a => a.status === 'ACTIVE').forEach(a => {
-        tfTo.innerHTML += `<option value="${a.accountNumber}">${a.accountNumber}</option>`;
-    });
+        // Global Accounts for Transfer target
+        const allRes = await fetch(`/api/app/accounts/all`);
+        const allAccs = await allRes.json();
+        const tfTo = document.getElementById('transferTo');
+        tfTo.innerHTML = '';
+        allAccs.filter(a => a.status === 'ACTIVE').forEach(a => {
+            tfTo.innerHTML += `<option value="${a.accountNumber}">${a.accountNumber}</option>`;
+        });
 
-    // Loans
-    const loansRes = await fetch(`/api/app/loans/user/${currentUser.userId}`);
-    const loansData = await loansRes.json();
-    const lTable = document.getElementById('loansTableBody');
-    lTable.innerHTML = '';
-    loansData.forEach(l => {
-        lTable.innerHTML += `<tr><td>${l.applicationId.substring(0,6)}</td><td>${l.purpose}</td><td>$${l.loanAmount}</td><td>${l.status}</td></tr>`;
-    });
+        // Loans
+        const loansRes = await fetch(`/api/app/loans/user/${currentUser.userId}`);
+        const loansData = await loansRes.json();
+        const lTable = document.getElementById('loansTableBody');
+        lTable.innerHTML = '';
+        loansData.forEach(l => {
+            lTable.innerHTML += `<tr><td>${l.applicationId.substring(0,6)}</td><td>${l.purpose}</td><td>$${l.loanAmount}</td><td>${l.status}</td></tr>`;
+        });
+    } catch (err) {
+        showToast('⚠️ ' + err.message);
+    }
 }
 
 // Actions
@@ -132,3 +137,6 @@ async function applyForLoan() {
 }
 
 refreshData();
+
+// Live updates: poll every 10 seconds
+setInterval(refreshData, 10000);

@@ -46,38 +46,43 @@ function toggleNotifications() {
 }
 
 async function refreshData() {
-    // Fetch all accounts to find UNVERIFIED
-    const allRes = await fetch(`/api/app/accounts/all`);
-    const allAccs = await allRes.json();
-    const kycT = document.getElementById('kycTableBody');
-    kycT.innerHTML = '';
-    allAccs.filter(a => a.status === 'UNVERIFIED').forEach(a => {
-        let docStr = a.kycDocuments && a.kycDocuments.length > 0 ? a.kycDocuments[a.kycDocuments.length - 1] : "No Docs";
-        kycT.innerHTML += `<tr>
-            <td>SYSTEM_USER</td>
-            <td>${a.accountNumber}</td>
-            <td>${a.accountType}</td>
-            <td><code>${docStr}</code></td>
-            <td><button onclick="verifyAccount('${a.accountNumber}')" style="padding:5px 10px; background:#16a34a; color:white; border:none; border-radius:4px; cursor:pointer;">VERIFY KYC DATA</button></td>
-        </tr>`;
-    });
+    try {
+        // Fetch all accounts to find UNVERIFIED
+        const allRes = await fetch(`/api/app/accounts/all`);
+        if (!allRes.ok) throw new Error('Server error or session lost. Please reload.');
+        const allAccs = await allRes.json();
+        const kycT = document.getElementById('kycTableBody');
+        kycT.innerHTML = '';
+        allAccs.filter(a => a.status === 'UNVERIFIED').forEach(a => {
+            let docStr = a.kycDocuments && a.kycDocuments.length > 0 ? a.kycDocuments[a.kycDocuments.length - 1] : "No Docs";
+            kycT.innerHTML += `<tr>
+                <td>SYSTEM_USER</td>
+                <td>${a.accountNumber}</td>
+                <td>${a.accountType}</td>
+                <td><code>${docStr}</code></td>
+                <td><button onclick="verifyAccount('${a.accountNumber}')" style="padding:5px 10px; background:#16a34a; color:white; border:none; border-radius:4px; cursor:pointer;">VERIFY KYC DATA</button></td>
+            </tr>`;
+        });
 
-    // Fetch all loans
-    const loanRes = await fetch(`/api/app/loans/all`);
-    const allLoans = await loanRes.json();
-    const loanT = document.getElementById('loansTableBody');
-    loanT.innerHTML = '';
-    allLoans.filter(l => l.status === 'SUBMITTED' || l.status === 'PENDING_MANAGER').forEach(l => {
-        loanT.innerHTML += `<tr>
-            <td>${l.applicationId.substring(0,8)}</td>
-            <td>${l.purpose}</td>
-            <td>$${l.loanAmount}</td>
-            <td>
-                <button onclick="reviewLoan('${l.applicationId}', true)" style="padding:5px 10px; background:#16a34a; color:white; border:none; border-radius:4px; cursor:pointer; margin-right:5px;">APPROVE</button>
-                <button onclick="reviewLoan('${l.applicationId}', false)" style="padding:5px 10px; background:#dc2626; color:white; border:none; border-radius:4px; cursor:pointer;">REJECT</button>
-            </td>
-        </tr>`;
-    });
+        // Fetch all loans
+        const loanRes = await fetch(`/api/app/loans/all`);
+        const allLoans = await loanRes.json();
+        const loanT = document.getElementById('loansTableBody');
+        loanT.innerHTML = '';
+        allLoans.filter(l => l.status === 'SUBMITTED' || l.status === 'PENDING_MANAGER').forEach(l => {
+            loanT.innerHTML += `<tr>
+                <td>${l.applicationId.substring(0,8)}</td>
+                <td>${l.purpose}</td>
+                <td>$${l.loanAmount}</td>
+                <td>
+                    <button onclick="reviewLoan('${l.applicationId}', true)" style="padding:5px 10px; background:#16a34a; color:white; border:none; border-radius:4px; cursor:pointer; margin-right:5px;">APPROVE</button>
+                    <button onclick="reviewLoan('${l.applicationId}', false)" style="padding:5px 10px; background:#dc2626; color:white; border:none; border-radius:4px; cursor:pointer;">REJECT</button>
+                </td>
+            </tr>`;
+        });
+    } catch (err) {
+        showToast('⚠️ ' + err.message);
+    }
 }
 
 async function verifyAccount(id) {
@@ -93,3 +98,6 @@ async function reviewLoan(id, approve) {
 }
 
 refreshData();
+
+// Live updates: poll every 10 seconds
+setInterval(refreshData, 10000);
