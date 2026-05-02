@@ -2,7 +2,7 @@
 
 Welcome to the production-grade Online Banking repository! This guide provides a quick setup walkthrough so you and your teammates can run the server locally, explore the different user roles, and test out the complex backend architectures (KYC verification, Event-Driven Fraud Engines, and Dynamic Loan scoring).
 
-## 🚀 1. How to Run the Application
+##  1. How to Run the Application
 
 This is a Spring Boot application. You do not need to install Maven, as the repository includes a Maven Wrapper (`mvnw`).
 
@@ -16,7 +16,7 @@ The backend and frontend are now running jointly on port **8080**.
 
 ---
 
-## 🧭 2. Portal URLs & Workflow Testing
+##  2. Portal URLs & Workflow Testing
 
 There are two completely isolated user flows with distinct HTML interfaces. 
 
@@ -40,7 +40,7 @@ There are two completely isolated user flows with distinct HTML interfaces.
 
 ---
 
-## 🗄️ 3. Live Database Viewer (H2 Console)
+##  3. Live Database Viewer (H2 Console)
 
 This project uses an embedded H2 In-Memory database. You can directly view the tables mutating during your presentation.
 
